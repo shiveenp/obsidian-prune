@@ -2,6 +2,7 @@ import {App, TFile} from 'obsidian';
 import {PrunePluginSettings} from './types';
 
 export const BACKUP_FOLDER = 'prune-backup';
+export const ONE_MONTH_IN_MS = 30 * 24 * 60 * 60 * 1000;
 
 export function getLinkedPaths(app: App): Set<string> {
 	const linked = new Set<string>();
@@ -81,7 +82,7 @@ export async function deleteEmptyNotes(app: App, settings: PrunePluginSettings, 
 
 export async function deleteOldNotes(app: App, settings: PrunePluginSettings, linkedPaths: Set<string> | null = null): Promise<number> {
 	const months = parseInt(settings.oldNotesAge);
-	const cutoff = Date.now() - months * 30 * 24 * 60 * 60 * 1000;
+	const cutoff = Date.now() - months * ONE_MONTH_IN_MS;
 	const files = app.vault.getMarkdownFiles();
 	const paths = linkedPaths ?? (settings.protectLinkedNotes ? getLinkedPaths(app) : null);
 	let deleted = 0;
@@ -103,7 +104,7 @@ export async function deleteFromFolder(app: App, settings: PrunePluginSettings, 
 	if (!folderPath) return 0;
 
 	const months = parseInt(settings.folderCleanupAge);
-	const cutoff = Date.now() - months * 30 * 24 * 60 * 60 * 1000;
+	const cutoff = Date.now() - months * ONE_MONTH_IN_MS;
 	const files = app.vault.getMarkdownFiles();
 	const paths = linkedPaths ?? (settings.protectLinkedNotes ? getLinkedPaths(app) : null);
 	let deleted = 0;
