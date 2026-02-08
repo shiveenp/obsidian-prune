@@ -28,6 +28,27 @@ export class PruneSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
+		new Setting(containerEl)
+			.setName('Delete method')
+			.setDesc('Move pruned notes to trash or to a backup folder for review.')
+			.addDropdown(dropdown => dropdown
+				.addOptions({'trash': 'Move to trash', 'backup': 'Move to prune-backup folder'})
+				.setValue(this.plugin.settings.deleteMethod)
+				.onChange(async (value) => {
+					this.plugin.settings.deleteMethod = value as PrunePluginSettings['deleteMethod'];
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Protect linked notes')
+			.setDesc('Never delete notes that have incoming or outgoing links.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.protectLinkedNotes)
+				.onChange(async (value) => {
+					this.plugin.settings.protectLinkedNotes = value;
+					await this.plugin.saveSettings();
+				}));
+
 		// Untitled notes
 		new Setting(containerEl).setName('Untitled notes').setHeading();
 
@@ -99,16 +120,6 @@ export class PruneSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		new Setting(containerEl)
-			.setName('Only orphaned notes')
-			.setDesc('Only delete old notes that have no incoming backlinks.')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.oldNotesOnlyOrphans)
-				.onChange(async (value) => {
-					this.plugin.settings.oldNotesOnlyOrphans = value;
-					await this.plugin.saveSettings();
-				}));
-
 		// Folder cleanup
 		new Setting(containerEl).setName('Folder cleanup').setHeading();
 
@@ -149,25 +160,5 @@ export class PruneSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		new Setting(containerEl)
-			.setName('Automatic cleanup')
-			.setDesc('Also run folder cleanup periodically on a timer.')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.folderCleanupAutoEnabled)
-				.onChange(async (value) => {
-					this.plugin.settings.folderCleanupAutoEnabled = value;
-					await this.plugin.saveSettings();
-				}));
-
-		new Setting(containerEl)
-			.setName('Cleanup interval')
-			.setDesc('How often to automatically clean the folder.')
-			.addDropdown(dropdown => dropdown
-				.addOptions({'15': '15 minutes', '30': '30 minutes', '60': '1 hour', '240': '4 hours'})
-				.setValue(this.plugin.settings.folderCleanupInterval)
-				.onChange(async (value) => {
-					this.plugin.settings.folderCleanupInterval = value as PrunePluginSettings['folderCleanupInterval'];
-					await this.plugin.saveSettings();
-				}));
 	}
 }

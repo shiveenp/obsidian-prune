@@ -1,36 +1,79 @@
 import {App, TFile} from 'obsidian';
 import {PrunePluginSettings} from './types';
 
+export const BACKUP_FOLDER = 'prune-backup';
+
+function getLinkedPaths(app: App): Set<string> {
+	const linked = new Set<string>();
+	const resolvedLinks = app.metadataCache.resolvedLinks;
+
+	for (const sourcePath in resolvedLinks) {
+		const targets = resolvedLinks[sourcePath];
+		for (const targetPath in targets) {
+			linked.add(targetPath);
+			linked.add(sourcePath);
+		}
+	}
+
+	return linked;
+}
+
+async function removeFile(app: App, file: TFile, settings: PrunePluginSettings): Promise<void> {
+	if (settings.deleteMethod === 'backup') {
+		const destPath = `${BACKUP_FOLDER}/${file.path}`;
+		const destDir = destPath.substring(0, destPath.lastIndexOf('/'));
+
+		if (!app.vault.getAbstractFileByPath(destDir)) {
+			await app.vault.createFolder(destDir);
+		}
+
+		await app.vault.rename(file, destPath);
+	} else {
+		await app.fileManager.trashFile(file);
+	}
+}
+
+function isInBackupFolder(file: TFile): boolean {
+	return file.path.startsWith(BACKUP_FOLDER + '/');
+}
+
 export async function deleteUntitledNotes(app: App, settings: PrunePluginSettings): Promise<number> {
 	const prefix = settings.untitledPrefix;
 	if (!prefix) return 0;
 
 	const files = app.vault.getMarkdownFiles();
+	const linkedPaths = settings.protectLinkedNotes ? getLinkedPaths(app) : null;
 	let deleted = 0;
 
 	for (const file of files) {
+		if (isInBackupFolder(file)) continue;
 		if (!isUntitled(file, prefix)) continue;
+		if (linkedPaths && linkedPaths.has(file.path)) continue;
 
 		if (settings.onlyIfEmpty) {
 			const content = await app.vault.read(file);
 			if (content.trim().length > 0) continue;
 		}
 
-		await app.fileManager.trashFile(file);
+		await removeFile(app, file, settings);
 		deleted++;
 	}
 
 	return deleted;
 }
 
-export async function deleteEmptyNotes(app: App): Promise<number> {
+export async function deleteEmptyNotes(app: App, settings: PrunePluginSettings): Promise<number> {
 	const files = app.vault.getMarkdownFiles();
+	const linkedPaths = settings.protectLinkedNotes ? getLinkedPaths(app) : null;
 	let deleted = 0;
 
 	for (const file of files) {
+		if (isInBackupFolder(file)) continue;
+		if (linkedPaths && linkedPaths.has(file.path)) continue;
+
 		const content = await app.vault.read(file);
 		if (content.trim().length === 0) {
-			await app.fileManager.trashFile(file);
+			await removeFile(app, file, settings);
 			deleted++;
 		}
 	}
@@ -41,24 +84,15 @@ export async function deleteOldNotes(app: App, settings: PrunePluginSettings): P
 	const months = parseInt(settings.oldNotesAge);
 	const cutoff = Date.now() - months * 30 * 24 * 60 * 60 * 1000;
 	const files = app.vault.getMarkdownFiles();
+	const linkedPaths = settings.protectLinkedNotes ? getLinkedPaths(app) : null;
 	let deleted = 0;
 
-	let linkedPaths: Set<string> | null = null;
-	if (settings.oldNotesOnlyOrphans) {
-		linkedPaths = new Set<string>();
-		const resolvedLinks = app.metadataCache.resolvedLinks;
-		for (const sourcePath in resolvedLinks) {
-			for (const targetPath in resolvedLinks[sourcePath]) {
-				linkedPaths.add(targetPath);
-			}
-		}
-	}
-
 	for (const file of files) {
+		if (isInBackupFolder(file)) continue;
 		if (file.stat.mtime >= cutoff) continue;
 		if (linkedPaths && linkedPaths.has(file.path)) continue;
 
-		await app.fileManager.trashFile(file);
+		await removeFile(app, file, settings);
 		deleted++;
 	}
 
@@ -72,13 +106,17 @@ export async function deleteFromFolder(app: App, settings: PrunePluginSettings):
 	const months = parseInt(settings.folderCleanupAge);
 	const cutoff = Date.now() - months * 30 * 24 * 60 * 60 * 1000;
 	const files = app.vault.getMarkdownFiles();
+	const linkedPaths = settings.protectLinkedNotes ? getLinkedPaths(app) : null;
 	let deleted = 0;
 
 	for (const file of files) {
-		if (file.parent?.path === folderPath && file.stat.mtime < cutoff) {
-			await app.fileManager.trashFile(file);
-			deleted++;
-		}
+		if (isInBackupFolder(file)) continue;
+		if (file.parent?.path !== folderPath) continue;
+		if (file.stat.mtime >= cutoff) continue;
+		if (linkedPaths && linkedPaths.has(file.path)) continue;
+
+		await removeFile(app, file, settings);
+		deleted++;
 	}
 
 	return deleted;

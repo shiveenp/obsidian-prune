@@ -5,12 +5,11 @@ export interface PrunePluginSettings {
 	runOnStartup: boolean;
 	deleteOldNotes: boolean;
 	oldNotesAge: '1' | '3' | '6' | '12';
-	oldNotesOnlyOrphans: boolean;
+	protectLinkedNotes: boolean;
+	deleteMethod: 'trash' | 'backup';
 	deleteFromFolder: boolean;
 	targetFolder: string;
 	folderCleanupAge: '1' | '3' | '6' | '12';
-	folderCleanupAutoEnabled: boolean;
-	folderCleanupInterval: '15' | '30' | '60' | '240';
 	deleteEmptyNotes: boolean;
 }
 
@@ -21,11 +20,10 @@ export const DEFAULT_SETTINGS: PrunePluginSettings = {
 	runOnStartup: false,
 	deleteOldNotes: false,
 	oldNotesAge: '12',
-	oldNotesOnlyOrphans: true,
+	protectLinkedNotes: true,
+	deleteMethod: 'trash',
 	deleteFromFolder: false,
 	targetFolder: '',
 	folderCleanupAge: '1',
-	folderCleanupAutoEnabled: false,
-	folderCleanupInterval: '60',
 	deleteEmptyNotes: false,
 };

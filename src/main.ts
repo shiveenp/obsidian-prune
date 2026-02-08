@@ -5,15 +5,14 @@ import * as rules from './rules';
 
 export default class PrunePlugin extends Plugin {
 	settings: PrunePluginSettings;
-	private folderCleanupIntervalId: number | null = null;
 
 	async onload() {
 		console.debug('[Prune] Loading Prune plugin...');
 		await this.loadSettings();
 
 		this.addCommand({
-			id: 'prune-vault',
-			name: 'Tidy vault',
+			id: 'tidy-vault',
+			name: 'Vault',
 			callback: () => this.pruneVault(),
 		});
 
@@ -23,7 +22,6 @@ export default class PrunePlugin extends Plugin {
 			if (this.settings.runOnStartup) {
 				void this.pruneVault();
 			}
-			this.setupFolderCleanupTimer();
 		});
 	}
 
@@ -34,7 +32,7 @@ export default class PrunePlugin extends Plugin {
 			count += await rules.deleteUntitledNotes(this.app, this.settings);
 		}
 		if (this.settings.deleteEmptyNotes) {
-			count += await rules.deleteEmptyNotes(this.app);
+			count += await rules.deleteEmptyNotes(this.app, this.settings);
 		}
 		if (this.settings.deleteOldNotes) {
 			count += await rules.deleteOldNotes(this.app, this.settings);
@@ -50,38 +48,11 @@ export default class PrunePlugin extends Plugin {
 		}
 	}
 
-	setupFolderCleanupTimer(): void {
-		if (this.folderCleanupIntervalId !== null) {
-			window.clearInterval(this.folderCleanupIntervalId);
-			this.folderCleanupIntervalId = null;
-		}
-
-		if (!this.settings.deleteFromFolder || !this.settings.folderCleanupAutoEnabled || !this.settings.targetFolder) return;
-
-		void rules.deleteFromFolder(this.app, this.settings).then(count => {
-			if (count > 0) {
-				new Notice(`Prune: deleted ${count} note${count === 1 ? '' : 's'} from folder.`);
-			}
-		});
-
-		const intervalMs = parseInt(this.settings.folderCleanupInterval) * 60 * 1000;
-		this.folderCleanupIntervalId = this.registerInterval(
-			window.setInterval(() => {
-				void rules.deleteFromFolder(this.app, this.settings).then(count => {
-					if (count > 0) {
-						new Notice(`Prune: deleted ${count} note${count === 1 ? '' : 's'} from folder.`);
-					}
-				});
-			}, intervalMs)
-		);
-	}
-
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<PrunePluginSettings>);
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-		this.setupFolderCleanupTimer();
 	}
 }
