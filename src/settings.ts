@@ -1,11 +1,11 @@
 import {App, PluginSettingTab, Setting} from "obsidian";
-import TidierPlugin from "./main";
-import {TidierPluginSettings} from "./types";
+import PrunePlugin from "./main";
+import {PrunePluginSettings} from "./types";
 
-export class TidierSettingTab extends PluginSettingTab {
-	plugin: TidierPlugin;
+export class PruneSettingTab extends PluginSettingTab {
+	plugin: PrunePlugin;
 
-	constructor(app: App, plugin: TidierPlugin) {
+	constructor(app: App, plugin: PrunePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -20,7 +20,7 @@ export class TidierSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Run on startup')
-			.setDesc('Automatically tidy the vault when Obsidian starts.')
+			.setDesc('Automatically prune the vault when Obsidian starts.')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.runOnStartup)
 				.onChange(async (value) => {
@@ -95,20 +95,17 @@ export class TidierSettingTab extends PluginSettingTab {
 				.addOptions({'1': '1 month', '3': '3 months', '6': '6 months', '12': '12 months'})
 				.setValue(this.plugin.settings.oldNotesAge)
 				.onChange(async (value) => {
-					this.plugin.settings.oldNotesAge = value as TidierPluginSettings['oldNotesAge'];
+					this.plugin.settings.oldNotesAge = value as PrunePluginSettings['oldNotesAge'];
 					await this.plugin.saveSettings();
 				}));
 
-		// Orphan notes
-		new Setting(containerEl).setName('Orphan notes').setHeading();
-
 		new Setting(containerEl)
-			.setName('Delete orphan notes')
-			.setDesc('Delete notes with no incoming backlinks.')
+			.setName('Only orphaned notes')
+			.setDesc('Only delete old notes that have no incoming backlinks.')
 			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.deleteOrphanNotes)
+				.setValue(this.plugin.settings.oldNotesOnlyOrphans)
 				.onChange(async (value) => {
-					this.plugin.settings.deleteOrphanNotes = value;
+					this.plugin.settings.oldNotesOnlyOrphans = value;
 					await this.plugin.saveSettings();
 				}));
 
@@ -148,7 +145,7 @@ export class TidierSettingTab extends PluginSettingTab {
 				.addOptions({'1': '1 month', '3': '3 months', '6': '6 months', '12': '12 months'})
 				.setValue(this.plugin.settings.folderCleanupAge)
 				.onChange(async (value) => {
-					this.plugin.settings.folderCleanupAge = value as TidierPluginSettings['folderCleanupAge'];
+					this.plugin.settings.folderCleanupAge = value as PrunePluginSettings['folderCleanupAge'];
 					await this.plugin.saveSettings();
 				}));
 
@@ -169,7 +166,7 @@ export class TidierSettingTab extends PluginSettingTab {
 				.addOptions({'15': '15 minutes', '30': '30 minutes', '60': '1 hour', '240': '4 hours'})
 				.setValue(this.plugin.settings.folderCleanupInterval)
 				.onChange(async (value) => {
-					this.plugin.settings.folderCleanupInterval = value as TidierPluginSettings['folderCleanupInterval'];
+					this.plugin.settings.folderCleanupInterval = value as PrunePluginSettings['folderCleanupInterval'];
 					await this.plugin.saveSettings();
 				}));
 	}

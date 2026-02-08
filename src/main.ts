@@ -1,33 +1,33 @@
 import {Notice, Plugin} from 'obsidian';
-import {DEFAULT_SETTINGS, TidierPluginSettings} from './types';
-import {TidierSettingTab} from './settings';
+import {DEFAULT_SETTINGS, PrunePluginSettings} from './types';
+import {PruneSettingTab} from './settings';
 import * as rules from './rules';
 
-export default class TidierPlugin extends Plugin {
-	settings: TidierPluginSettings;
+export default class PrunePlugin extends Plugin {
+	settings: PrunePluginSettings;
 	private folderCleanupIntervalId: number | null = null;
 
 	async onload() {
-		console.debug('[Tidier] Loading Tidier plugin...');
+		console.debug('[Prune] Loading Prune plugin...');
 		await this.loadSettings();
 
 		this.addCommand({
-			id: 'tidy-vault',
-			name: 'Tidy vault',
-			callback: () => this.tidyVault(),
+			id: 'prune-vault',
+			name: 'Prune vault',
+			callback: () => this.pruneVault(),
 		});
 
-		this.addSettingTab(new TidierSettingTab(this.app, this));
+		this.addSettingTab(new PruneSettingTab(this.app, this));
 
 		this.app.workspace.onLayoutReady(() => {
 			if (this.settings.runOnStartup) {
-				void this.tidyVault();
+				void this.pruneVault();
 			}
 			this.setupFolderCleanupTimer();
 		});
 	}
 
-	async tidyVault() {
+	async pruneVault() {
 		let count = 0;
 
 		if (this.settings.deleteUntitledNotes) {
@@ -39,17 +39,14 @@ export default class TidierPlugin extends Plugin {
 		if (this.settings.deleteOldNotes) {
 			count += await rules.deleteOldNotes(this.app, this.settings);
 		}
-		if (this.settings.deleteOrphanNotes) {
-			count += await rules.deleteOrphanNotes(this.app);
-		}
 		if (this.settings.deleteFromFolder) {
 			count += await rules.deleteFromFolder(this.app, this.settings);
 		}
 
 		if (count > 0) {
-			new Notice(`Tidier: deleted ${count} note${count === 1 ? '' : 's'}.`);
+			new Notice(`Prune: deleted ${count} note${count === 1 ? '' : 's'}.`);
 		} else {
-			new Notice('Tidier: vault is already tidy.');
+			new Notice('Prune: vault is already clean.');
 		}
 	}
 
@@ -63,7 +60,7 @@ export default class TidierPlugin extends Plugin {
 
 		void rules.deleteFromFolder(this.app, this.settings).then(count => {
 			if (count > 0) {
-				new Notice(`Tidier: deleted ${count} note${count === 1 ? '' : 's'} from folder.`);
+				new Notice(`Prune: deleted ${count} note${count === 1 ? '' : 's'} from folder.`);
 			}
 		});
 
@@ -72,7 +69,7 @@ export default class TidierPlugin extends Plugin {
 			window.setInterval(() => {
 				void rules.deleteFromFolder(this.app, this.settings).then(count => {
 					if (count > 0) {
-						new Notice(`Tidier: deleted ${count} note${count === 1 ? '' : 's'} from folder.`);
+						new Notice(`Prune: deleted ${count} note${count === 1 ? '' : 's'} from folder.`);
 					}
 				});
 			}, intervalMs)
@@ -80,7 +77,7 @@ export default class TidierPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<TidierPluginSettings>);
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<PrunePluginSettings>);
 	}
 
 	async saveSettings() {

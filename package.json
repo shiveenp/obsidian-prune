@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-tidier",
+	"name": "obsidian-prune",
 	"version": "1.0.0",
-	"description": "Clean up your vault by deleting untitled, empty, old, and orphan notes.",
+	"description": "Prune your vault by deleting untitled, empty, old, and orphan notes.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

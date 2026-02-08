@@ -1,7 +1,7 @@
 import {App, TFile} from 'obsidian';
-import {TidierPluginSettings} from './types';
+import {PrunePluginSettings} from './types';
 
-export async function deleteUntitledNotes(app: App, settings: TidierPluginSettings): Promise<number> {
+export async function deleteUntitledNotes(app: App, settings: PrunePluginSettings): Promise<number> {
 	const prefix = settings.untitledPrefix;
 	if (!prefix) return 0;
 
@@ -34,50 +34,38 @@ export async function deleteEmptyNotes(app: App): Promise<number> {
 			deleted++;
 		}
 	}
-
 	return deleted;
 }
 
-export async function deleteOldNotes(app: App, settings: TidierPluginSettings): Promise<number> {
+export async function deleteOldNotes(app: App, settings: PrunePluginSettings): Promise<number> {
 	const months = parseInt(settings.oldNotesAge);
 	const cutoff = Date.now() - months * 30 * 24 * 60 * 60 * 1000;
 	const files = app.vault.getMarkdownFiles();
 	let deleted = 0;
 
-	for (const file of files) {
-		if (file.stat.mtime < cutoff) {
-			await app.fileManager.trashFile(file);
-			deleted++;
+	let linkedPaths: Set<string> | null = null;
+	if (settings.oldNotesOnlyOrphans) {
+		linkedPaths = new Set<string>();
+		const resolvedLinks = app.metadataCache.resolvedLinks;
+		for (const sourcePath in resolvedLinks) {
+			for (const targetPath in resolvedLinks[sourcePath]) {
+				linkedPaths.add(targetPath);
+			}
 		}
+	}
+
+	for (const file of files) {
+		if (file.stat.mtime >= cutoff) continue;
+		if (linkedPaths && linkedPaths.has(file.path)) continue;
+
+		await app.fileManager.trashFile(file);
+		deleted++;
 	}
 
 	return deleted;
 }
 
-export async function deleteOrphanNotes(app: App): Promise<number> {
-	const resolvedLinks = app.metadataCache.resolvedLinks;
-	const linkedPaths = new Set<string>();
-
-	for (const sourcePath in resolvedLinks) {
-		for (const targetPath in resolvedLinks[sourcePath]) {
-			linkedPaths.add(targetPath);
-		}
-	}
-
-	const files = app.vault.getMarkdownFiles();
-	let deleted = 0;
-
-	for (const file of files) {
-		if (!linkedPaths.has(file.path)) {
-			await app.fileManager.trashFile(file);
-			deleted++;
-		}
-	}
-
-	return deleted;
-}
-
-export async function deleteFromFolder(app: App, settings: TidierPluginSettings): Promise<number> {
+export async function deleteFromFolder(app: App, settings: PrunePluginSettings): Promise<number> {
 	const folderPath = settings.targetFolder;
 	if (!folderPath) return 0;
 

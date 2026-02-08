@@ -1,11 +1,11 @@
-export interface TidierPluginSettings {
+export interface PrunePluginSettings {
 	deleteUntitledNotes: boolean;
 	untitledPrefix: string;
 	onlyIfEmpty: boolean;
 	runOnStartup: boolean;
 	deleteOldNotes: boolean;
 	oldNotesAge: '1' | '3' | '6' | '12';
-	deleteOrphanNotes: boolean;
+	oldNotesOnlyOrphans: boolean;
 	deleteFromFolder: boolean;
 	targetFolder: string;
 	folderCleanupAge: '1' | '3' | '6' | '12';
@@ -14,14 +14,14 @@ export interface TidierPluginSettings {
 	deleteEmptyNotes: boolean;
 }
 
-export const DEFAULT_SETTINGS: TidierPluginSettings = {
+export const DEFAULT_SETTINGS: PrunePluginSettings = {
 	deleteUntitledNotes: true,
 	untitledPrefix: 'Untitled',
 	onlyIfEmpty: true,
 	runOnStartup: false,
 	deleteOldNotes: false,
 	oldNotesAge: '12',
-	deleteOrphanNotes: false,
+	oldNotesOnlyOrphans: true,
 	deleteFromFolder: false,
 	targetFolder: '',
 	folderCleanupAge: '1',
