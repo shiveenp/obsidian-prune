@@ -8,13 +8,12 @@ export function getLinkedPaths(app: App): Set<string> {
 	const resolvedLinks = app.metadataCache.resolvedLinks;
 
 	for (const sourcePath in resolvedLinks) {
+		linked.add(sourcePath);
 		const targets = resolvedLinks[sourcePath];
 		for (const targetPath in targets) {
 			linked.add(targetPath);
-			linked.add(sourcePath);
 		}
 	}
-
 	return linked;
 }
 
