@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "obsidian-tidier",
+	"name": "Tidier",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Clean up your vault by deleting untitled, empty, old, and orphan notes.",
+	"author": "shiveenp",
+	"authorUrl": "https://github.com/shiveenp",
 	"isDesktopOnly": false
 }
