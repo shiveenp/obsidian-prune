@@ -13,7 +13,7 @@ export default class PrunePlugin extends Plugin {
 
 		this.addCommand({
 			id: 'prune-vault',
-			name: 'Prune vault',
+			name: 'Tidy vault',
 			callback: () => this.pruneVault(),
 		});
 
