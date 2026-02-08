@@ -27,18 +27,19 @@ export default class PrunePlugin extends Plugin {
 
 	async pruneVault() {
 		let count = 0;
+		const linkedPaths = this.settings.protectLinkedNotes ? rules.getLinkedPaths(this.app) : null;
 
 		if (this.settings.deleteUntitledNotes) {
-			count += await rules.deleteUntitledNotes(this.app, this.settings);
+			count += await rules.deleteUntitledNotes(this.app, this.settings, linkedPaths);
 		}
 		if (this.settings.deleteEmptyNotes) {
-			count += await rules.deleteEmptyNotes(this.app, this.settings);
+			count += await rules.deleteEmptyNotes(this.app, this.settings, linkedPaths);
 		}
 		if (this.settings.deleteOldNotes) {
-			count += await rules.deleteOldNotes(this.app, this.settings);
+			count += await rules.deleteOldNotes(this.app, this.settings, linkedPaths);
 		}
 		if (this.settings.deleteFromFolder) {
-			count += await rules.deleteFromFolder(this.app, this.settings);
+			count += await rules.deleteFromFolder(this.app, this.settings, linkedPaths);
 		}
 
 		if (count > 0) {
