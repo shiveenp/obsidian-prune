@@ -1,25 +1,37 @@
 # Prune
 
-An Obsidian plugin that prunes your vault so you don't have to. Delete untitled drafts, empty notes, stale files, orphans, and more — manually or on autopilot.
-
-I made this plugin because I was tired of seeing random Untitled notes in my vault. If you've ever seen `Untitled 1, 2, 3` etc. in your vault, then you know what i mean. I couldn't find anything that worked exactly as I would like in the plugins marketplace, so I made my own. Eventually, I found some other uses like cleaning old notes or notes from my doodle folder.
-
-If your vault is full of half-started notes, abandoned drafts, and files you forgot existed, Prune brings it back under control with a single command. 
+An Obsidian plugin that keeps your vault clean by removing untitled drafts, empty notes, stale files, and clutter from specific folders — manually or on startup.
 
 ## Features
 
-- **Untitled notes** — Delete notes matching a configurable prefix (e.g. "Untitled", "Untitled 1"). Optionally only if they're empty.
-- **Empty notes** — Delete notes with no content.
-- **Old notes** — Delete notes not modified in 1, 3, 6, or 12 months.
-- **Protected linked notes** — Never delete notes that have incoming or outgoing links.
-- **Orphan notes** — Delete notes with no incoming backlinks.
-- **Folder cleanup** — Delete old notes from a specific folder.
-- **Safety baked in** — <ins>Never</ins> delete notes that have incoming or outgoing links. Provides options to move the delete files in a separate folder for review.
+- 📝 **Untitled notes** — Delete notes matching a configurable prefix (e.g. "Untitled", "Untitled 1"). Optionally only if they're empty.
+- 🕳️ **Empty notes** — Delete notes with no content.
+- 🕰️ **Old notes** — Delete notes not modified in 1, 3, 6, or 12 months.
+- 📁 **Folder cleanup** — Delete old notes from a specific folder, with a separate age threshold.
+- 🔗 **Linked note protection** — Notes that are linked to by other notes are never deleted, so you won't break any references in your vault.
+- 💾 **Backup before delete** — Optionally move pruned notes to a `prune-backup` folder in your vault root for review, instead of sending them straight to trash.
+- 🚀 **Run on startup** — Optionally prune automatically when Obsidian launches.
 
+## Settings
+
+<!-- TODO: Add screenshot of settings tab -->
+![Prune settings](screenshots/current-settings-screen.png)
+
+## Default behavior
+
+Prune is conservative by default. Out of the box:
+
+- Only **empty untitled notes** are deleted (prefix: "Untitled", only-if-empty: on).
+- Linked note protection is **on** — any note referenced by another note is safe.
+- Old notes, empty notes, and folder cleanup rules are **off**.
+- Delete method is **trash** (your obsidian settings trash, so you can recover files).
+- Run on startup is **off** — nothing happens until you run the command.
+
+Prune only touches **markdown files**. Attachments, images, PDFs, and other file types are never affected.
 
 ## Usage
 
-Open the command palette and run **Prune vault** to clean up your vault based on your enabled rules.
+Open the command palette and run **Prune: Vault** to clean up your vault based on your enabled rules.
 
 You can also enable **Run on startup** in settings to prune automatically when Obsidian launches.
 
@@ -31,7 +43,7 @@ Search for "Prune" in **Settings > Community plugins > Browse**.
 
 ### Manual
 
-1. Download `main.js` and `manifest.json` from the [latest release](https://github.com/shiveenp/obsidian-tidier/releases)
-2. Create a folder at `VaultFolder/.obsidian/plugins/obsidian-prune/`
-3. Copy both files into that folder
-4. Enable the plugin in **Settings > Community plugins**
+1. Download `main.js` and `manifest.json` from the [latest release](https://github.com/shiveenp/obsidian-prune/releases).
+2. Create a folder at `VaultFolder/.obsidian/plugins/prune/`.
+3. Copy both files into that folder.
+4. Enable the plugin in **Settings > Community plugins**.
