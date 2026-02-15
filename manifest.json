@@ -1,7 +1,7 @@
 {
 	"id": "prune",
 	"name": "Prune",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.6.6",
 	"description": "Prune your vault by deleting untitled, empty, old, and orphan notes.",
 	"author": "shiveenp",
