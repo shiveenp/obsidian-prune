@@ -1,5 +1,5 @@
 {
-	"name": "obsidian-prune",
+	"name": "prune",
 	"version": "1.0.0",
 	"description": "Prune your vault by deleting untitled, empty, old, and orphan notes.",
 	"main": "main.js",

@@ -7,7 +7,6 @@ export default class PrunePlugin extends Plugin {
 	settings: PrunePluginSettings;
 
 	async onload() {
-		console.debug('[Prune] Loading Prune plugin...');
 		await this.loadSettings();
 
 		this.addCommand({
@@ -52,6 +51,8 @@ export default class PrunePlugin extends Plugin {
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<PrunePluginSettings>);
 	}
+
+	onunload() {}
 
 	async saveSettings() {
 		await this.saveData(this.settings);

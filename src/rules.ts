@@ -1,4 +1,4 @@
-import {App, TFile} from 'obsidian';
+import {App, normalizePath, TFile} from 'obsidian';
 import {PrunePluginSettings} from './types';
 
 export const BACKUP_FOLDER = 'prune-backup';
@@ -7,9 +7,7 @@ export const ONE_MONTH_IN_MS = 30 * 24 * 60 * 60 * 1000;
 export function getLinkedPaths(app: App): Set<string> {
 	const linked = new Set<string>();
 	const resolvedLinks = app.metadataCache.resolvedLinks;
-
 	for (const sourcePath in resolvedLinks) {
-		linked.add(sourcePath);
 		const targets = resolvedLinks[sourcePath];
 		for (const targetPath in targets) {
 			linked.add(targetPath);
@@ -20,8 +18,8 @@ export function getLinkedPaths(app: App): Set<string> {
 
 async function removeFile(app: App, file: TFile, settings: PrunePluginSettings): Promise<void> {
 	if (settings.deleteMethod === 'backup') {
-		const destPath = `${BACKUP_FOLDER}/${file.path}`;
-		const destDir = destPath.substring(0, destPath.lastIndexOf('/'));
+		const destPath = normalizePath(`${BACKUP_FOLDER}/${file.path}`);
+		const destDir = normalizePath(destPath.substring(0, destPath.lastIndexOf('/')));
 
 		if (!app.vault.getAbstractFileByPath(destDir)) {
 			await app.vault.createFolder(destDir);
